@@ -43,10 +43,6 @@ class teacherskey_from extends moodleform {
 
         $myform = $this->_form;
         $instance = $this->_customdata;
-        $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/enrol/teacherskey/js/teacherskey.js'));
-
-
-      //
 
         $attributes = array('size' => '30', 'placeholder' => get_string('fio', 'enrol_teacherskey'));
         $myform->addElement('text', 'fio', get_string('labelfio', 'enrol_teacherskey'), $attributes);
@@ -67,11 +63,6 @@ class teacherskey_from extends moodleform {
     }
 
     function validate($data, $files){
-        $errors  =  parent::validation($data, $files);
-
-        if ($data['truetechers'] == false)
-            $errors['errors_checkbox'] = get_string('enrol_teacherskey', 'errors_checkbox');
-
         return array();
     }
 }
