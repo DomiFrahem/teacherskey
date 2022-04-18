@@ -45,15 +45,18 @@ class teacherskey_from extends moodleform {
         $instance = $this->_customdata;
         $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/enrol/teacherskey/js/teacherskey.js'));
 
-        $myform->addElement('checkbox', 'truetechers', get_string('truetechers', 'enrol_teacherskey'), null, array('onchange' => 'change_readonly(this)'));
-        $myform->setDefault('truetechers', true);
 
-        $attributes = array('size' => '30', 'placeholder' => get_string('fio', 'enrol_teacherskey'), 'readonly' => true);
+      //
+
+        $attributes = array('size' => '30', 'placeholder' => get_string('fio', 'enrol_teacherskey'));
         $myform->addElement('text', 'fio', get_string('labelfio', 'enrol_teacherskey'), $attributes);
         $myform->setType('fio', PARAM_NOTAGS);
         $myform->setDefault('fio', $this->get_fio_default_value($USER->id, $instance->courseid));
 
+        $myform->addElement('checkbox', 'truetechers', get_string('truetechers', 'enrol_teacherskey'), null);
+        $myform->setDefault('truetechers', false);
 
+        $myform->disabledIf('fio', 'truetechers', 'checked');
         $this->add_action_buttons();
 
         $myform->addElement('hidden', 'id');
@@ -64,6 +67,11 @@ class teacherskey_from extends moodleform {
     }
 
     function validate($data, $files){
+        $errors  =  parent::validation($data, $files);
+
+        if ($data['truetechers'] == false)
+            $errors['errors_checkbox'] = get_string('enrol_teacherskey', 'errors_checkbox');
+
         return array();
     }
 }
