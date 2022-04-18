@@ -38,7 +38,12 @@ class enrol_teacherskey_plugin extends enrol_plugin {
                 if ($form->is_cancelled()) {
                     redirect($CFG->wwwroot . "/my", get_string('cancelm', 'enrol_teacherskey'));
                 } else if ($data = $form->get_data()) {
-                    $this->enrol_self($data, $instance);
+
+                    if ($data->truetechers == 1){
+                        $this->enrol_self($data, $instance);
+                    } else{
+                        \core\notification::error(get_string('error_teachers_checkbox', 'enrol_teacherskey'));
+                    }
                 }
 
 
