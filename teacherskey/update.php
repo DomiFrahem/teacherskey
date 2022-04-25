@@ -35,23 +35,37 @@ $PAGE->set_context($context);
 $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header(get_string('teacherslist', 'enrol_teacherskey'));
 
-
 $form = new update_from(null, $id_change_fio);
 if ($form->is_cancelled()) {
-    //Handle form cancel operation, if cancel button is present on form
-    redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=".$USER->id);
+
+    if(has_capability('enrol/teacherskey:config', $context)){
+        $row = $DB->get_record('teacherskey_data', array('id' => $id_change_fio));
+        redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers.php?courseid=" . $row->courseid);
+    }else {
+        redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=" . $USER->id);
+    }
+
 } else if ($fromform = $form->get_data()) {
-    //In this case you process validated data. $mform->get_data() returns data posted in form.
     $update = new stdClass();
-    $update->id = $id_change_fio;
+    $update->id =  $fromform->id;
     $update->fio = $fromform->fio;
+    $update->courseid = $fromform->courseid;
 
     if ($DB->update_record('teacherskey_data', $fromform)){
         \core\notification::success(get_string('good_update', 'enrol_teacherskey'));
-        redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=".$USER->id);
+        if(has_capability('enrol/teacherskey:config', $context)){
+            redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers.php?courseid=" . $fromform->courseid);
+        }else {
+            redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=" . $USER->id);
+        }
+
     }else{
         \core\notification::error(get_string('error_update', 'enrol_teacherskey'));
-        redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=".$USER->id);
+        if(has_capability('enrol/teacherskey:config', $context)){
+            redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers.php?courseid=" . $fromform->courseid);
+        }else {
+            redirect($CFG->wwwroot . "/enrol/teacherskey/listteachers_student.php?userid=" . $USER->id);
+        }
     }
 
 } else {

@@ -26,25 +26,37 @@ defined("MOODLE_INTERNAL") || die();
 
 class enrol_teacherskey_plugin extends enrol_plugin {
 
+    public function get_fio_default_value($userid, $courseid) {
+        global $DB;
+        if ($DB->record_exists('teacherskey_data', array('userid' => $userid, 'courseid' => $courseid))) {
+            return $DB->get_record('teacherskey_data', array('userid' => $userid, 'courseid' => $courseid))->fio;
+        }else return $DB->get_record('user_info_data', array('userid' => $userid, 'fieldid' => 3))->data;
+    }
+
     public function enrol_page_hook(stdClass $instance)
     {
         global $CFG, $OUTPUT, $USER;
         require_once($CFG->dirroot."/enrol/teacherskey/locallib.php");
         $enrolstatus = $this->can_self_enrol($instance);
         if (true === $enrolstatus){
-
             $form = new teacherskey_from(null, $instance);
-            $instanceid = optional_param('instance', 0, PARAM_INT);
-                if ($form->is_cancelled()) {
-                    redirect($CFG->wwwroot . "/my", get_string('cancelm', 'enrol_teacherskey'));
-                } else if ($data = $form->get_data()) {
 
-                    if ($data->truetechers == 1){
-                        $this->enrol_self($data, $instance);
-                    } else{
-                        \core\notification::error(get_string('error_teachers_checkbox', 'enrol_teacherskey'));
-                    }
+            $defaultdata = new stdClass();
+            $defaultdata->fio = $this->get_fio_default_value($USER->id, $instance->courseid);
+            $defaultdata->truetechers = false;
+            $form->set_data($defaultdata);
+
+
+            if ($form->is_cancelled()) {
+                redirect($CFG->wwwroot . "/my", get_string('cancelm', 'enrol_teacherskey'));
+            } else if ($data = $form->get_data()) {
+
+                if ($data->truetechers == 1){
+                    $this->enrol_self($data, $instance);
+                } else{
+                    \core\notification::error(get_string('error_teachers_checkbox', 'enrol_teacherskey'));
                 }
+            }
 
 
         }else {
@@ -144,6 +156,7 @@ class enrol_teacherskey_plugin extends enrol_plugin {
         global $CFG, $DB, $USER;
 
 
+
        $timestart = time();
         if ($instance->enrolperiod) {
             $timeend = $timestart + $instance->enrolperiod;
@@ -159,14 +172,16 @@ class enrol_teacherskey_plugin extends enrol_plugin {
 
         $this->enrol_user($instance, $USER->id, $instance->roleid, $timestart, $timeend);
 
+        $save_data = new stdClass();
+        $save_data->courseid = $data->id;
+        $save_data->userid = $USER->id;
+        $save_data->fio = $data->fio;
+
         if(!$DB->record_exists('teacherskey_data', array('courseid' => $instance->courseid, 'userid' => $USER->id))) {
-
-            $save_data = new stdClass();
-            $save_data->courseid = $data->id;
-            $save_data->userid = $USER->id;
-            $save_data->fio = $data->fio;
             $DB->insert_record('teacherskey_data', $save_data);
-
+        }else{
+            $save_data->id = $DB->get_record('teacherskey_data', array('courseid' => $instance->courseid, 'userid' => $USER->id))->id;
+            $DB->update_record('teacherskey_data', $save_data);
         }
 
         \core\notification::success(get_string('youenrolledincourse', 'enrol'));

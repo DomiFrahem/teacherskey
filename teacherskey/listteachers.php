@@ -59,7 +59,7 @@ if (!$table->is_downloading()){
 
 
 
-$fields = "mu.id, CONCAT(mu.lastname, ' ', mu.firstname, ' ', mu.middlename) as fiostudent, mc.fullname as coursename, mtd.fio";
+$fields = "mu.id, mtd.id mtdid, CONCAT(mu.lastname, ' ', mu.firstname, ' ', mu.middlename) as fiostudent, mc.fullname as coursename, mtd.fio";
 $from = "{teacherskey_data} mtd
     inner join {course} mc on mc.id = mtd.courseid
     inner join {user} mu on mu.id = mtd.userid";

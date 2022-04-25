@@ -32,12 +32,12 @@ class listteachers extends \table_sql{
     public function __construct($uniqueid){
         parent::__construct($uniqueid);
 
-        $columns = array('fiostudent', 'coursename', 'fio');
+        $columns = array('fiostudent', 'coursename', 'fio', 'options');
         $this->define_columns($columns);
 
         $headers = array(get_string('fiostudent', 'enrol_teacherskey'),
             get_string('coursename', 'enrol_teacherskey'),
-            get_string('fio', 'enrol_teacherskey'));
+            get_string('fio', 'enrol_teacherskey'). '');
         $this->define_headers($headers);
         $this->pageable(true);
     }
@@ -49,6 +49,14 @@ class listteachers extends \table_sql{
             return $values->fiostudent;
         } else {
             return '<a href="/moodle/user/view.php?id='.$values->id.'">'.$values->fiostudent.'</a>';
+        }
+    }
+
+    function col_options($values){
+        if ($this->is_downloading()) {
+            return '';
+        } else {
+            return '<a href="/moodle/enrol/teacherskey/update.php?id='.$values->mtdid.'">Изменить</a>';
         }
     }
 

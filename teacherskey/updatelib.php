@@ -40,16 +40,21 @@ class update_from extends moodleform
         $myform = $this->_form;
         $id_change_fio = $this->_customdata;
 
+        $row = $this->get_fio_default_value($id_change_fio);
         $attributes = array('size' => '30', 'placeholder' => get_string('fio', 'enrol_teacherskey'));
         $myform->addElement('text', 'fio', get_string('labelfio', 'enrol_teacherskey'), $attributes);
         $myform->setType('fio', PARAM_NOTAGS);
-        $myform->setDefault('fio', $this->get_fio_default_value($id_change_fio)->fio);
+        $myform->setDefault('fio', $row->fio);
 
         $this->add_action_buttons();
 
         $myform->addElement('hidden', 'id');
         $myform->setType('id', PARAM_INT);
         $myform->setDefault('id', $id_change_fio);
+
+        $myform->addElement('hidden', 'courseid');
+        $myform->setType('courseid', PARAM_INT);
+        $myform->setDefault('courseid', $row->courseid);
 
     }
 

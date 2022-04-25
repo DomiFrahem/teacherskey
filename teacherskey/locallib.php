@@ -28,37 +28,25 @@ require_once($CFG->dirroot . '/enrol/locallib.php');
 class teacherskey_from extends moodleform {
     protected $instance;
 
-
-    public function get_fio_default_value($userid, $courseid) {
-        global $DB;
-        if ($DB->record_exists('teacherskey_data', array('userid' => $userid, 'courseid' => $courseid))) {
-            return $DB->get_record('teacherskey_data', array('userid' => $userid, 'courseid' => $courseid))->fio;
-        }else return $DB->get_record('user_info_data', array('userid' => $userid, 'fieldid' => 3))->data;
-    }
-
     public function definition()
     {
 
-        global $USER, $CFG, $PAGE;
+        global $CFG, $PAGE;
 
         $myform = $this->_form;
         $instance = $this->_customdata;
+        $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/enrol/teacherskey/js/teacherskey.js'));
 
         $attributes = array('size' => '30', 'placeholder' => get_string('fio', 'enrol_teacherskey'));
         $myform->addElement('text', 'fio', get_string('labelfio', 'enrol_teacherskey'), $attributes);
-        $myform->setType('fio', PARAM_NOTAGS);
-        $myform->setDefault('fio', $this->get_fio_default_value($USER->id, $instance->courseid));
 
-        $myform->addElement('checkbox', 'truetechers', get_string('truetechers', 'enrol_teacherskey'), null);
-        $myform->setDefault('truetechers', false);
-
-        $myform->disabledIf('fio', 'truetechers', 'checked');
-        $this->add_action_buttons();
+        $myform->addElement('checkbox', 'truetechers', get_string('truetechers', 'enrol_teacherskey'), null, array('onchange' => 'change_readonly(this)'));
 
         $myform->addElement('hidden', 'id');
         $myform->setType('id', PARAM_INT);
         $myform->setDefault('id', $instance->courseid);
 
+        $this->add_action_buttons();
 
     }
 

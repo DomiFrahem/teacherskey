@@ -23,8 +23,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022041800;
+$plugin->version = 2022041901;
 $plugin->requires = 2021051700; // Moodle 3.11
 $plugin->component = "enrol_teacherskey";
-$plugin->maturity = MATURITY_BETA;
+$plugin->maturity = MATURITY_STABLE;
 
